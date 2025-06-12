@@ -156,4 +156,38 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get language => 'Dil';
+
+  // ... mevcut kodun sonuna ekleyin
+  @override
+  String get login => 'Giriş Yap';
+
+  @override
+  String get register => 'Kayıt Ol';
+
+  @override
+  String get guestLogin => 'Misafir Girişi';
+
+  @override
+  String get email => 'E-posta';
+
+  @override
+  String get password => 'Şifre';
+
+  @override
+  String get rememberMe => 'Beni Hatırla';
+
+  @override
+  String get dontHaveAccount => 'Hesabın yok mu? Kayıt Ol';
+
+  @override
+  String get alreadyHaveAccount => 'Zaten bir hesabın var mı? Giriş Yap';
+
+  @override
+  String get logout => 'Çıkış Yap';
+
+  @override
+  String get guestProgressWarning => 'Misafir ilerlemesi kaydedilmez. Puanlarınızı kaydetmek için lütfen giriş yapın.';
+
+  @override
+  String get registerOrLogin => 'Kayıt Ol / Giriş Yap';
 }

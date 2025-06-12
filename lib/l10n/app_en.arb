@@ -47,5 +47,17 @@
     "settings": "Settings",
     "music": "Music",
     "soundEffects": "Sound Effects",
-    "language": "Language"
+    "language": "Language",
+    "guestProgressWarning": "Guest progress is not saved. Please log in to save your scores.",
+    "login": "Login",
+    "register": "Register",
+    "guestLogin": "Guest Login",
+    "email": "Email",
+    "password": "Password",
+    "rememberMe": "Remember Me",
+    "dontHaveAccount": "Don't have an account? Register",
+    "alreadyHaveAccount": "Already have an account? Login",
+    "logout": "Logout",
+    "registerOrLogin": "Register or Login",
+    "confirmPassword": "Confirm Password"
 }

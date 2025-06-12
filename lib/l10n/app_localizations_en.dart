@@ -156,4 +156,37 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get language => 'Language';
+
+  @override
+  String get login => 'Login';
+
+  @override
+  String get register => 'Register';
+
+  @override
+  String get guestLogin => 'Guest Login';
+
+  @override
+  String get email => 'Email';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get rememberMe => 'Remember Me';
+
+  @override
+  String get dontHaveAccount => 'Don\'t have an account? Register';
+
+  @override
+  String get alreadyHaveAccount => 'Already have an account? Login';
+
+  @override
+  String get logout => 'Logout';
+
+  @override
+  String get guestProgressWarning => 'Guest progress is not saved. Please log in to save your scores.';
+
+  @override
+  String get registerOrLogin => 'Register / Login';
 }

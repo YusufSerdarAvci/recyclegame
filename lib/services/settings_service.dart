@@ -1,13 +1,17 @@
-// lib/services/settings_service.dart
-// Manages loading and saving app settings.
-
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
+import 'package:recycle_game/services/auth_service.dart';
+import 'package:recycle_game/services/firestore_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:recycle_game/services/audio_service.dart';
 import 'dart:convert';
 
+
 class SettingsService with ChangeNotifier {
   late SharedPreferences _prefs;
+  final FirestoreService _firestoreService = FirestoreService();
+  final AuthService _auth = AuthService();
 
   double _musicVolume = 1.0;
   double _sfxVolume = 1.0;
@@ -29,15 +33,20 @@ class SettingsService with ChangeNotifier {
     _sfxVolume = _prefs.getDouble('sfxVolume') ?? 1.0;
     String langCode = _prefs.getString('languageCode') ?? 'en';
     _locale = Locale(langCode);
-    // Level yıldızlarını yükle
-    final starsString = _prefs.getString('levelStars') ?? '{}';
-    _levelStars = Map<int, int>.from((starsString.isNotEmpty ? Map<String, dynamic>.from(_decodeJson(starsString)) : {}));
-    _levelStars = _levelStars.map((k, v) => MapEntry(int.parse(k.toString()), v));
+
+    final user = await _auth.user.first; 
+    if (user != null) {
+      final progress = await _firestoreService.getUserProgress(user.uid);
+      final starsFromDb = progress['levelStars'] as Map<String, dynamic>;
+      _levelStars = starsFromDb.map((key, value) => MapEntry(int.parse(key), value as int));
+    }
+
     AudioService.updateSettings(_musicVolume, _sfxVolume);
     notifyListeners();
   }
-
+  
   void setMusicVolume(double value) {
+    if (_auth.isGuest) return; 
     _musicVolume = value;
     _prefs.setDouble('musicVolume', value);
     AudioService.updateSettings(_musicVolume, _sfxVolume);
@@ -45,6 +54,7 @@ class SettingsService with ChangeNotifier {
   }
 
   void setSfxVolume(double value) {
+    if (_auth.isGuest) return; 
     _sfxVolume = value;
     _prefs.setDouble('sfxVolume', value);
     AudioService.updateSettings(_musicVolume, _sfxVolume);
@@ -52,15 +62,21 @@ class SettingsService with ChangeNotifier {
   }
   
   void setLocale(Locale locale) {
+    if (_auth.isGuest) return;
     _locale = locale;
     _prefs.setString('languageCode', locale.languageCode);
     notifyListeners();
   }
 
-  void setLevelStars(int level, int stars) {
+  Future<void> setLevelStars(int level, int stars) async {
+    if (_auth.isGuest) return; 
+
+    final user = await _auth.user.first;
+    if (user == null) return;
+    
     if ((_levelStars[level] ?? 0) < stars) {
       _levelStars[level] = stars;
-      _prefs.setString('levelStars', _encodeJson(_levelStars));
+      await _firestoreService.updateUserLevelStars(user.uid, _levelStars); // Firestore'a yaz
       notifyListeners();
     }
   }

@@ -7,6 +7,7 @@ import 'package:recycle_game/data/game_levels.dart';
 import 'package:recycle_game/screens/game_screen.dart';
 import 'package:recycle_game/screens/main_menu_screen.dart';
 import 'package:recycle_game/services/audio_service.dart';
+import 'package:recycle_game/services/auth_service.dart';
 import 'package:recycle_game/services/firestore_service.dart';
 import 'package:recycle_game/services/settings_service.dart';
 import 'package:provider/provider.dart';
@@ -55,9 +56,14 @@ class _LevelCompleteScreenState extends State<LevelCompleteScreen> {
   }
 
   Future<void> _submitScore() async {
-    final user = FirebaseAuth.instance.currentUser;
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final firestoreService = Provider.of<FirestoreService>(context, listen: false);
+    
+    if (authService.isGuest) return;
+
+    final user = await authService.user.first;
     if (user != null) {
-      await FirestoreService().submitScore(uid: user.uid, score: widget.score);
+      await firestoreService.submitScore(uid: user.uid, score: widget.score);
     }
   }
 

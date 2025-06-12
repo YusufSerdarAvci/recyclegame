@@ -38,6 +38,7 @@
     "nextLevelButton": "Sonraki Seviye",
     "wellDone": "Aferin!",
     "greatJob": "Harika İş!",
+    
     "excellent": "Mükemmel!",
     "goodJob": "İyi İş!",
     "keepTrying": "Devam Et!",
@@ -47,5 +48,16 @@
     "settings": "Ayarlar",
     "music": "Müzik",
     "soundEffects": "Ses Efektleri",
-    "language": "Dil"
+    "language": "Dil",
+    "guestProgressWarning": "Misafir ilerlemesi kaydedilmez. Puanlarınızı kaydetmek için lütfen giriş yapın.",
+    "login": "Giriş Yap",
+    "register": "Kayıt Ol",
+    "guestLogin": "Misafir Girişi",
+    "email": "E-posta",
+    "password": "Şifre",
+    "rememberMe": "Beni Hatırla",
+    "dontHaveAccount": "Hesabın yok mu? Kayıt Ol",
+    "alreadyHaveAccount": "Zaten bir hesabın var mı? Giriş Yap",
+    "logout": "Çıkış Yap",
+    "registerOrLogin": "Kayıt Ol veya Giriş Yap"
 }

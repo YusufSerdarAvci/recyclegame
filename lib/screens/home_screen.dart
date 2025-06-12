@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import '../models/level.dart';
-import '../models/waste_item.dart';
+import '../models/recyclable_item.dart';
 import 'game_screen.dart';
 import 'dart:math';
 import '../data/waste_data.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:recycle_game/models/recyclable_item.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback onLanguageChange;
