@@ -6,6 +6,7 @@ class AudioService {
 
   static double _musicVolume = 1.0;
   static double _sfxVolume = 1.0;
+  static bool _isMusicPlaying = false;
 
   static void updateSettings(double musicVolume, double sfxVolume) {
     _musicVolume = musicVolume;
@@ -15,7 +16,8 @@ class AudioService {
   }
 
   static Future<void> playMusic() async {
-    if (_musicVolume > 0) {
+    if (_musicVolume > 0 && !_isMusicPlaying) {
+      _isMusicPlaying = true;
       await _musicPlayer.setReleaseMode(ReleaseMode.loop);
       await _musicPlayer.setVolume(_musicVolume);
       await _musicPlayer.play(AssetSource('audio/music/background.mp3'));
@@ -41,10 +43,12 @@ class AudioService {
   }
 
   static Future<void> stopMusic() async {
+    _isMusicPlaying = false;
     await _musicPlayer.stop();
   }
 
   static void dispose() {
+    _isMusicPlaying = false;
     _musicPlayer.dispose();
     _sfxPlayer.dispose();
   }

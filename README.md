@@ -6,5 +6,4 @@ A new Flutter project.
 
 To Run:
 -flutter pub get
--flutter gen-l10n
 -flutter run

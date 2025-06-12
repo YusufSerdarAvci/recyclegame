@@ -16,6 +16,7 @@ class AuthScreen extends StatefulWidget {
 class _AuthScreenState extends State<AuthScreen> {
   final AuthService _authService = AuthService();
   final _formKey = GlobalKey<FormState>();
+  late AppLocalizations localizations;
 
   bool _isLogin = true;
   bool _isLoading = false;
@@ -26,6 +27,12 @@ class _AuthScreenState extends State<AuthScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    localizations = AppLocalizations.of(context)!;
+  }
 
   void _submitAuthForm() async {
     if (!_formKey.currentState!.validate()) return;
@@ -48,9 +55,26 @@ class _AuthScreenState extends State<AuthScreen> {
       }
     } catch (e) {
       if (mounted) {
+        String errorMessage;
+        if (e.toString().contains('email-already-in-use')) {
+          errorMessage = localizations.errorEmailAlreadyInUse;
+        } else if (e.toString().contains('invalid-credential')) {
+          errorMessage = localizations.errorInvalidCredentials;
+        } else if (e.toString().contains('weak-password')) {
+          errorMessage = localizations.errorWeakPassword;
+        } else if (e.toString().contains('user-not-found')) {
+          errorMessage = localizations.errorUserNotFound;
+        } else if (e.toString().contains('too-many-requests')) {
+          errorMessage = localizations.errorTooManyRequests;
+        } else if (e.toString().contains('network-request-failed')) {
+          errorMessage = localizations.errorNetworkRequestFailed;
+        } else {
+          errorMessage = e.toString().replaceAll('Exception: ', '');
+        }
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.toString().replaceAll('Exception: ', '')),
+            content: Text(errorMessage),
             backgroundColor: Colors.red,
           ),
         );
@@ -83,7 +107,6 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final localizations = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -122,7 +145,9 @@ class _AuthScreenState extends State<AuthScreen> {
                 TextFormField(
                   controller: _emailController,
                   decoration: InputDecoration(labelText: localizations.email),
-                  validator: (value) => value!.isEmpty || !value.contains('@') ? 'Geçerli bir e-posta girin.' : null,
+                  validator: (value) => value!.isEmpty || !value.contains('@') 
+                    ? localizations.errorInvalidEmail 
+                    : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -145,7 +170,9 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
                   ),
                   obscureText: _obscurePassword,
-                  validator: (value) => value!.length < 6 ? 'Şifre en az 6 karakter olmalı.' : null,
+                  validator: (value) => value!.length < 6 
+                    ? localizations.errorPasswordTooShort 
+                    : null,
                 ),
                 if (!_isLogin) ...[
                   const SizedBox(height: 12),
@@ -170,8 +197,10 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
                     obscureText: _obscureConfirmPassword,
                     validator: (value) {
-                      if (value == null || value.isEmpty) return 'Şifreyi onaylayın.';
-                      if (value != _passwordController.text) return 'Şifreler eşleşmiyor.';
+                      if (value == null || value.isEmpty) 
+                        return localizations.errorConfirmPassword;
+                      if (value != _passwordController.text) 
+                        return localizations.errorPasswordsDoNotMatch;
                       return null;
                     },
                   ),

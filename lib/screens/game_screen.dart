@@ -62,7 +62,7 @@ class _GameScreenState extends State<GameScreen> {
         _correctCount++;
         AudioService.playSfx('correct_answer.wav');
         if (item.educationalFactKey != null && mounted) {
-          Future.delayed(const Duration(milliseconds: 300), () {
+          Future.delayed(const Duration(milliseconds: 500), () {
             showEducationalPopup(context, item.educationalFactKey ?? '');
           });
         }

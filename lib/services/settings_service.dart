@@ -27,55 +27,105 @@ class SettingsService with ChangeNotifier {
 
   Future<void> loadSettings() async {
     _prefs = await SharedPreferences.getInstance();
-    _musicVolume = _prefs.getDouble('musicVolume') ?? 1.0;
-    _sfxVolume = _prefs.getDouble('sfxVolume') ?? 1.0;
-    String langCode = _prefs.getString('languageCode') ?? 'en';
-    _locale = Locale(langCode);
-
-    final user = await _auth.user.first; 
-    if (user != null) {
+    
+    final user = await _auth.user.first;
+    if (user != null && !_auth.isGuest) {
       final progress = await _firestoreService.getUserProgress(user.uid);
-      final starsFromDb = progress['levelStars'] as Map<String, dynamic>;
-      _levelStars = starsFromDb.map((key, value) => MapEntry(int.parse(key), value as int));
+      if (progress != null) {
+        _musicVolume = (progress['musicVolume'] ?? 1.0).toDouble();
+        _sfxVolume = (progress['sfxVolume'] ?? 1.0).toDouble();
+        String langCode = progress['languageCode'] ?? 'en';
+        _locale = Locale(langCode);
+        
+        final starsFromDb = progress['levelStars'];
+        if (starsFromDb != null && starsFromDb is Map) {
+          _levelStars = Map<int, int>.from(
+            starsFromDb.map((key, value) => MapEntry(
+              int.parse(key.toString()),
+              (value is num) ? value.toInt() : int.parse(value.toString())
+            ))
+          );
+        }
+      }
+    } else {
+      _musicVolume = _prefs.getDouble('musicVolume') ?? 1.0;
+      _sfxVolume = _prefs.getDouble('sfxVolume') ?? 1.0;
+      String langCode = _prefs.getString('languageCode') ?? 'en';
+      _locale = Locale(langCode);
     }
 
     AudioService.updateSettings(_musicVolume, _sfxVolume);
     notifyListeners();
   }
   
-  void setMusicVolume(double value) {
-    if (_auth.isGuest) return; 
+  Future<void> setMusicVolume(double value) async {
     _musicVolume = value;
-    _prefs.setDouble('musicVolume', value);
+    final user = await _auth.user.first;
+    
+    if (user != null && !_auth.isGuest) {
+      await _firestoreService.updateUserSettings(
+        user.uid,
+        {'musicVolume': value},
+      );
+    } else {
+      await _prefs.setDouble('musicVolume', value);
+    }
+    
     AudioService.updateSettings(_musicVolume, _sfxVolume);
     notifyListeners();
   }
 
-  void setSfxVolume(double value) {
-    if (_auth.isGuest) return; 
+  Future<void> setSfxVolume(double value) async {
     _sfxVolume = value;
-    _prefs.setDouble('sfxVolume', value);
+    final user = await _auth.user.first;
+    
+    if (user != null && !_auth.isGuest) {
+      await _firestoreService.updateUserSettings(
+        user.uid,
+        {'sfxVolume': value},
+      );
+    } else {
+      await _prefs.setDouble('sfxVolume', value);
+    }
+    
     AudioService.updateSettings(_musicVolume, _sfxVolume);
     notifyListeners();
   }
   
-  void setLocale(Locale locale) {
-    if (_auth.isGuest) return;
+  Future<void> setLocale(Locale locale) async {
     _locale = locale;
-    _prefs.setString('languageCode', locale.languageCode);
+    final user = await _auth.user.first;
+    
+    if (user != null && !_auth.isGuest) {
+      await _firestoreService.updateUserSettings(
+        user.uid,
+        {'languageCode': locale.languageCode},
+      );
+    } else {
+      await _prefs.setString('languageCode', locale.languageCode);
+    }
+    
     notifyListeners();
   }
 
   Future<void> setLevelStars(int level, int stars) async {
-    if (_auth.isGuest) return; 
+    if (_auth.isGuest) return;
 
-    final user = await _auth.user.first;
-    if (user == null) return;
-    
-    if ((_levelStars[level] ?? 0) < stars) {
-      _levelStars[level] = stars;
-      await _firestoreService.updateUserLevelStars(user.uid, _levelStars); // Firestore'a yaz
-      notifyListeners();
+    try {
+      final user = await _auth.user.first;
+      if (user == null) return;
+      
+      final currentStars = _levelStars[level] ?? 0;
+      if (stars > currentStars) {
+        _levelStars[level] = stars;
+        
+        await _firestoreService.updateUserLevelStars(user.uid, _levelStars);
+        
+        notifyListeners();
+      }
+    } catch (e) {
+      print("Level yıldızları ayarlanırken hata: $e");
+      rethrow;
     }
   }
 

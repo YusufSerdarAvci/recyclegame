@@ -11,6 +11,7 @@ import 'package:recycle_game/services/auth_service.dart';
 import 'package:recycle_game/services/firestore_service.dart';
 import 'package:recycle_game/services/settings_service.dart';
 import 'package:provider/provider.dart';
+import 'package:recycle_game/widgets/educational_fact_popup.dart';
 
 class LevelCompleteScreen extends StatefulWidget {
   final int score;
@@ -47,6 +48,16 @@ class _LevelCompleteScreenState extends State<LevelCompleteScreen> {
       settings.setLevelStars(widget.currentLevel, widget.stars);
       if (widget.stars > 1) {
         AudioService.playSfx('level_completed.mp3');
+        // Show educational fact popup after a short delay
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => const EducationalFactPopup(),
+            );
+          }
+        });
       } else {
         AudioService.playSfx('level_failed.mp3');
       }
@@ -56,12 +67,15 @@ class _LevelCompleteScreenState extends State<LevelCompleteScreen> {
   Future<void> _submitScore() async {
     final authService = Provider.of<AuthService>(context, listen: false);
     final firestoreService = Provider.of<FirestoreService>(context, listen: false);
-    
-    if (authService.isGuest) return;
 
     final user = await authService.user.first;
-    if (user != null) {
-      await firestoreService.submitScore(uid: user.uid, score: widget.score);
+    if (user != null && !authService.isGuest) {
+      await firestoreService.saveLevelProgress(
+        uid: user.uid,
+        level: widget.currentLevel,
+        stars: widget.stars,
+        score: widget.score,
+      );
     }
   }
 

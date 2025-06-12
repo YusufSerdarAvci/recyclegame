@@ -77,13 +77,76 @@ class FirestoreService {
   }
 
   Future<void> updateUserLevelStars(String uid, Map<int, int> stars) async {
-    final starData = stars.map((key, value) => MapEntry(key.toString(), value));
-    await _db.collection('users').doc(uid).set({
-      'levelStars': starData
-    }, SetOptions(merge: true));
+    try {
+      final doc = await _db.collection('users').doc(uid).get();
+      Map<String, dynamic> currentStars = {};
+      
+      if (doc.exists && doc.data() != null) {
+        final data = doc.data()!;
+        if (data.containsKey('levelStars')) {
+          currentStars = Map<String, dynamic>.from(data['levelStars']);
+        }
+      }
+
+      stars.forEach((level, starCount) {
+        final currentStarCount = int.tryParse(currentStars[level.toString()]?.toString() ?? '0') ?? 0;
+        if (starCount > currentStarCount) {
+          currentStars[level.toString()] = starCount;
+        }
+      });
+
+      await _db.collection('users').doc(uid).update({
+        'levelStars': currentStars,
+        'lastUpdated': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      print("Level yıldızları güncellenirken hata: $e");
+      throw Exception('Level yıldızları kaydedilemedi. Lütfen tekrar deneyin.');
+    }
+  }
+
+  Future<void> updateUserSettings(String uid, Map<String, dynamic> settings) async {
+    await _db.collection('users').doc(uid).update(settings);
   }
 
   Stream<QuerySnapshot> getLeaderboard() {
     return _db.collection('leaderboard').orderBy('score', descending: true).limit(100).snapshots();
+  }
+
+  Future<void> saveLevelProgress({
+    required String uid,
+    required int level,
+    required int stars,
+    required int score,
+  }) async {
+    final userDoc = _db.collection('users').doc(uid);
+    final levelKey = level.toString();
+
+    // Yıldız ve skorun en yükseğini sakla
+    final doc = await userDoc.get();
+    Map<String, dynamic> currentStars = {};
+    Map<String, dynamic> currentScores = {};
+
+    if (doc.exists && doc.data() != null) {
+      final data = doc.data()!;
+      if (data.containsKey('levelStars')) {
+        currentStars = Map<String, dynamic>.from(data['levelStars']);
+      }
+      if (data.containsKey('levelScores')) {
+        currentScores = Map<String, dynamic>.from(data['levelScores']);
+      }
+    }
+
+    final prevStars = int.tryParse(currentStars[levelKey]?.toString() ?? '0') ?? 0;
+    final prevScore = int.tryParse(currentScores[levelKey]?.toString() ?? '0') ?? 0;
+
+    if (stars > prevStars) currentStars[levelKey] = stars;
+    if (score > prevScore) currentScores[levelKey] = score;
+
+    await userDoc.set({
+      'levelStars': currentStars,
+      'levelScores': currentScores,
+      'lastUpdated': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
   }
 }

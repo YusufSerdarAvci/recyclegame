@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   bool isGuest = false;
+  static const String _guestUserIdKey = 'guest_user_id';
 
   Stream<User?> get user => _auth.authStateChanges();
 
@@ -102,14 +103,45 @@ class AuthService {
   }
   
   Future<User?> signInAsGuest() async {
-      try {
-        final userCredential = await _auth.signInAnonymously();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedGuestId = prefs.getString(_guestUserIdKey);
+      
+      final currentUser = _auth.currentUser;
+      if (currentUser != null) {
+        if (savedGuestId == currentUser.uid) {
+          isGuest = true;
+          return currentUser;
+        }
+        await _auth.signOut();
+      }
+
+      final userCredential = await _auth.signInAnonymously();
+      if (userCredential.user != null) {
+        await prefs.setString(_guestUserIdKey, userCredential.user!.uid);
         isGuest = true;
         return userCredential.user;
-      } catch (e) {
-        print("Misafir olarak giriş yaparken hata: $e");
-        return null;
       }
+      
+      return null;
+    } catch (e) {
+      print("Misafir olarak giriş yaparken hata: $e");
+      return null;
+    }
+  }
+
+  Future<bool> checkIfGuest() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedGuestId = prefs.getString(_guestUserIdKey);
+    final currentUser = _auth.currentUser;
+    
+    if (currentUser != null && savedGuestId == currentUser.uid) {
+      isGuest = true;
+      return true;
+    }
+    
+    isGuest = false;
+    return false;
   }
 
   Future<void> setRememberMe(bool value) async {
@@ -124,7 +156,7 @@ class AuthService {
 
   Future<void> signOut() async {
     await _auth.signOut();
-    await setRememberMe(false); 
+    await setRememberMe(false);
     isGuest = false;
   }
 

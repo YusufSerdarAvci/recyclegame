@@ -1,10 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:recycle_game/screens/auth_screen.dart';
 import 'package:recycle_game/screens/main_menu_screen.dart';
 import 'package:recycle_game/services/auth_service.dart';
 import 'package:recycle_game/services/settings_service.dart';
+import 'package:recycle_game/services/firestore_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -20,6 +20,7 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         Provider<AuthService>(create: (_) => AuthService()),
+        Provider<FirestoreService>(create: (_) => FirestoreService()),
         ChangeNotifierProvider<SettingsService>(create: (_) => SettingsService()),
       ],
       child: const MyApp(),
@@ -62,31 +63,39 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class AuthWrapper extends StatelessWidget {
+class AuthWrapper extends StatefulWidget {
   const AuthWrapper({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<AuthWrapper> createState() => _AuthWrapperState();
+}
+
+class _AuthWrapperState extends State<AuthWrapper> {
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _autoGuestLogin();
+  }
+
+  Future<void> _autoGuestLogin() async {
     final authService = Provider.of<AuthService>(context, listen: false);
-    
-    return StreamBuilder<User?>(
-      stream: authService.user,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.active) {
-          if (snapshot.hasData) {
-            // Kullanıcı oturum açmış
-            return const MainMenuScreen();
-          }
-          // Kullanıcı oturum açmamış
-          return const AuthScreen();
-        }
-        // Bağlantı bekleniyor
-        return const Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
-        );
-      },
-    );
+    if (authService.isGuest == false && FirebaseAuth.instance.currentUser == null) {
+      await authService.signInAsGuest();
+    }
+    setState(() {
+      _loading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+    return MainMenuScreen();
   }
 }

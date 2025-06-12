@@ -43,9 +43,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final authService = Provider.of<AuthService>(context, listen: false);
     await authService.updateDisplayName(_nameController.text);
     
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Profil güncellendi!')),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.profileUpdated)),
+      );
+    }
     
     setState(() => _isLoading = false);
   }
@@ -71,13 +73,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         TextFormField(
                           controller: _nameController,
-                          decoration: const InputDecoration(labelText: 'Görünen Ad'),
-                          validator: (value) => value!.isEmpty ? 'İsim boş olamaz.' : null,
+                          decoration: InputDecoration(
+                            labelText: localizations.displayName,
+                          ),
+                          validator: (value) => value!.isEmpty 
+                              ? localizations.nameCannotBeEmpty 
+                              : null,
                         ),
                         const SizedBox(height: 20),
                         ElevatedButton(
                           onPressed: _saveProfile,
-                          child: const Text('Kaydet'),
+                          child: Text(localizations.save),
                         ),
                       ],
                     ),

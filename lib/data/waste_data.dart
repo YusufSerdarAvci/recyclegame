@@ -24,7 +24,7 @@ final Map<String, List<RecyclableItem>> categorizedWasteItems = {
     RecyclableItem(name: 'Yapışkan Notlar', imagePath: 'assets/images/wastes/paper/sticky_note.png', type: 'paper'),
   ],
   'plastic': [
-    RecyclableItem(name: 'Plastik Şişe', imagePath: 'assets/images/wastes/plastic/plastic_bottle.png', type: 'plastic', educationalFactKey: 'plastic_bottle_fact'),
+    RecyclableItem(name: 'Plastik Şişe', imagePath: 'assets/images/wastes/plastic/plastic_bottle.png', type: 'plastic'),
     RecyclableItem(name: 'Plastik Bardak', imagePath: 'assets/images/wastes/plastic/plastic_cup.png', type: 'plastic'),
     RecyclableItem(name: 'Plastik Tabanca', imagePath: 'assets/images/wastes/plastic/plastic_water_gun.png', type: 'plastic'),
     RecyclableItem(name: 'Plastik Poşet', imagePath: 'assets/images/wastes/plastic/plastic_bag.png', type: 'plastic'),
