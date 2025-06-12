@@ -41,9 +41,7 @@ class _LevelCompleteScreenState extends State<LevelCompleteScreen> {
   void initState() {
     super.initState();
     _isGameCompleted = widget.currentLevel >= gameLevels.length - 1;
-    // Save score to leaderboard
     _submitScore();
-    // Save stars to settings
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final settings = Provider.of<SettingsService>(context, listen: false);
       settings.setLevelStars(widget.currentLevel, widget.stars);

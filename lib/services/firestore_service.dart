@@ -1,6 +1,3 @@
-// lib/services/firestore_service.dart
-// Manages all Firestore database operations.
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreService {

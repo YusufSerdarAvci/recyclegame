@@ -1,4 +1,3 @@
-// lib/screens/main_menu_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:recycle_game/screens/level_selection_screen.dart';

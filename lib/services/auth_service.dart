@@ -13,7 +13,6 @@ class AuthService {
     try {
       print("Giriş denemesi başladı: $email");
       
-      // Önce Firebase Auth ile giriş yapmayı dene
       final userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
@@ -60,7 +59,6 @@ class AuthService {
     }
   }
 
-  // Email ve Şifre ile Kayıt
   Future<User?> registerWithEmail(String email, String password) async {
     try {
       print("Kayıt denemesi başladı: $email");
@@ -103,7 +101,6 @@ class AuthService {
     }
   }
   
-  // Misafir Girişi
   Future<User?> signInAsGuest() async {
       try {
         final userCredential = await _auth.signInAnonymously();
@@ -115,22 +112,19 @@ class AuthService {
       }
   }
 
-  // "Beni Hatırla" Durumunu Kaydetme
   Future<void> setRememberMe(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('rememberMe', value);
   }
 
-  // "Beni Hatırla" Durumunu Kontrol Etme
   Future<bool> getRememberMe() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool('rememberMe') ?? false;
   }
 
-  // Çıkış Yapma
   Future<void> signOut() async {
     await _auth.signOut();
-    await setRememberMe(false); // Çıkış yapıldığında "Beni Hatırla" sıfırlanır
+    await setRememberMe(false); 
     isGuest = false;
   }
 
