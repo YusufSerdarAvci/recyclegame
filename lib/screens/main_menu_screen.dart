@@ -60,11 +60,10 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
             icon: const Icon(Icons.logout, color: Colors.black),
             onPressed: () async {
               await authService.signOut();
-              if(mounted) {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => const AuthScreen())
-                );
-              }
+              if (!mounted) return;
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => const AuthScreen())
+              );
             },
           ),
         ],
@@ -165,11 +164,10 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                       onPressed: () {
                         _onButtonPressed(() async {
                           await authService.signOut();
-                          if (mounted) {
-                            Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(builder: (context) => const AuthScreen()),
-                            );
-                          }
+                          if (!mounted) return;
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(builder: (context) => const AuthScreen()),
+                          );
                         });
                       },
                     ),

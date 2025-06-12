@@ -31,27 +31,31 @@ class SettingsService with ChangeNotifier {
     final user = await _auth.user.first;
     if (user != null && !_auth.isGuest) {
       final progress = await _firestoreService.getUserProgress(user.uid);
-      if (progress != null) {
-        _musicVolume = (progress['musicVolume'] ?? 1.0).toDouble();
-        _sfxVolume = (progress['sfxVolume'] ?? 1.0).toDouble();
-        String langCode = progress['languageCode'] ?? 'en';
-        _locale = Locale(langCode);
-        
-        final starsFromDb = progress['levelStars'];
-        if (starsFromDb != null && starsFromDb is Map) {
-          _levelStars = Map<int, int>.from(
-            starsFromDb.map((key, value) => MapEntry(
-              int.parse(key.toString()),
-              (value is num) ? value.toInt() : int.parse(value.toString())
-            ))
-          );
-        }
+      _musicVolume = (progress['musicVolume'] ?? 1.0).toDouble();
+      _sfxVolume = (progress['sfxVolume'] ?? 1.0).toDouble();
+      String langCode = progress['languageCode'] ?? 'en';
+      _locale = Locale(langCode);
+      final starsFromDb = progress['levelStars'];
+      if (starsFromDb != null && starsFromDb is Map) {
+        _levelStars = Map<int, int>.from(
+          starsFromDb.map((key, value) => MapEntry(
+            int.parse(key.toString()),
+            (value is num) ? value.toInt() : int.parse(value.toString())
+          ))
+        );
       }
     } else {
       _musicVolume = _prefs.getDouble('musicVolume') ?? 1.0;
       _sfxVolume = _prefs.getDouble('sfxVolume') ?? 1.0;
       String langCode = _prefs.getString('languageCode') ?? 'en';
       _locale = Locale(langCode);
+      final guestStarsString = _prefs.getString('guest_levelStars');
+      if (guestStarsString != null && guestStarsString.isNotEmpty) {
+        final decoded = jsonDecode(guestStarsString);
+        _levelStars = Map<int, int>.from(
+          (decoded as Map).map((key, value) => MapEntry(int.parse(key.toString()), value)),
+        );
+      }
     }
 
     AudioService.updateSettings(_musicVolume, _sfxVolume);
@@ -103,8 +107,6 @@ class SettingsService with ChangeNotifier {
           {'languageCode': locale.languageCode},
         );
       } catch (e) {
-        print("Dil ayarı güncellenirken hata: $e");
-        // Hata durumunda varsayılan dile geri dön
         _locale = const Locale('en');
         notifyListeners();
         rethrow;
@@ -113,7 +115,6 @@ class SettingsService with ChangeNotifier {
       try {
         await _prefs.setString('languageCode', locale.languageCode);
       } catch (e) {
-        print("Dil ayarı güncellenirken hata: $e");
         _locale = const Locale('en');
         notifyListeners();
         rethrow;
@@ -124,22 +125,25 @@ class SettingsService with ChangeNotifier {
   }
 
   Future<void> setLevelStars(int level, int stars) async {
-    if (_auth.isGuest) return;
-
-    try {
-      final user = await _auth.user.first;
-      if (user == null) return;
-      
+    if (_auth.isGuest) {
       final currentStars = _levelStars[level] ?? 0;
       if (stars > currentStars) {
         _levelStars[level] = stars;
-        
+        await _prefs.setString('guest_levelStars', jsonEncode(_levelStars));
+        notifyListeners();
+      }
+      return;
+    }
+    try {
+      final user = await _auth.user.first;
+      if (user == null) return;
+      final currentStars = _levelStars[level] ?? 0;
+      if (stars > currentStars) {
+        _levelStars[level] = stars;
         await _firestoreService.updateUserLevelStars(user.uid, _levelStars);
-        
         notifyListeners();
       }
     } catch (e) {
-      print("Level yıldızları ayarlanırken hata: $e");
       rethrow;
     }
   }
@@ -147,17 +151,5 @@ class SettingsService with ChangeNotifier {
   bool isLevelUnlocked(int level) {
     if (level == 0) return true;
     return (_levelStars[level - 1] ?? 0) >= 2;
-  }
-
-  dynamic _decodeJson(String s) {
-    try {
-      return s.isNotEmpty ? (s.startsWith('{') ? jsonDecode(s) : {}) : {};
-    } catch (_) {
-      return {};
-    }
-  }
-
-  String _encodeJson(Map<int, int> map) {
-    return map.map((k, v) => MapEntry(k.toString(), v)).toString();
   }
 }

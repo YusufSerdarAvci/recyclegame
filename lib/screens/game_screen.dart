@@ -62,8 +62,11 @@ class _GameScreenState extends State<GameScreen> {
         _correctCount++;
         AudioService.playSfx('correct_answer.wav');
         if (item.educationalFactKey != null && mounted) {
+          final wasMounted = mounted;
           Future.delayed(const Duration(milliseconds: 500), () {
-            showEducationalPopup(context, item.educationalFactKey ?? '');
+            if (wasMounted && mounted) {
+              showEducationalPopup(context, item.educationalFactKey ?? '');
+            }
           });
         }
       } else {

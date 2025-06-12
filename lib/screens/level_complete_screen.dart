@@ -1,5 +1,3 @@
-// lib/screens/level_complete_screen.dart
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:recycle_game/l10n/app_localizations.dart';
@@ -100,7 +98,7 @@ class _LevelCompleteScreenState extends State<LevelCompleteScreen> {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
+                  color: Colors.black.withAlpha((0.2 * 255).toInt()),
                   blurRadius: 10,
                   spreadRadius: 5,
                 ),

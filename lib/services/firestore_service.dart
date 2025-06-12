@@ -42,24 +42,19 @@ class FirestoreService {
   
   Future<Map<String, dynamic>?> getUserProfile(String uid) async {
     try {
-      print("Firestore'dan kullanıcı profili alınıyor: $uid");
       final doc = await _db.collection('users').doc(uid).get();
       
       if (!doc.exists) {
-        print("Kullanıcı dokümanı bulunamadı: $uid");
         return null;
       }
       
       final data = doc.data();
       if (data == null) {
-        print("Kullanıcı dokümanı boş: $uid");
         return null;
       }
       
-      print("Kullanıcı profili başarıyla alındı: ${data['displayName']}");
       return data;
     } catch (e) {
-      print("Kullanıcı profili alınırken hata: $e");
       return null;
     }
   }
@@ -91,10 +86,20 @@ class FirestoreService {
 
   Future<void> updateUserLevelStars(String uid, Map<int, int> stars) async {
     try {
-      final doc = await _db.collection('users').doc(uid).get();
+      final docRef = _db.collection('users').doc(uid);
+      final doc = await docRef.get();
       Map<String, dynamic> currentStars = {};
-      
-      if (doc.exists && doc.data() != null) {
+
+      if (!doc.exists) {
+        await docRef.set({
+          'levelStars': stars.map((k, v) => MapEntry(k.toString(), v)),
+          'createdAt': FieldValue.serverTimestamp(),
+          'lastUpdated': FieldValue.serverTimestamp(),
+        });
+        return;
+      }
+
+      if (doc.data() != null) {
         final data = doc.data()!;
         if (data.containsKey('levelStars')) {
           currentStars = Map<String, dynamic>.from(data['levelStars']);
@@ -108,7 +113,7 @@ class FirestoreService {
         }
       });
 
-      await _db.collection('users').doc(uid).update({
+      await docRef.update({
         'levelStars': currentStars,
         'lastUpdated': FieldValue.serverTimestamp(),
       });

@@ -14,43 +14,29 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  final AuthService _authService = AuthService();
+  late AuthService _authService;
   final _formKey = GlobalKey<FormState>();
   late AppLocalizations localizations;
 
   bool _isLogin = true;
   bool _isLoading = false;
-  bool _rememberMe = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  String? _errorMessage;
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    localizations = AppLocalizations.of(context)!;
+  void initState() {
+    super.initState();
   }
 
   @override
-  void initState() {
-    super.initState();
-    _loadRememberedCredentials();
-  }
-
-  Future<void> _loadRememberedCredentials() async {
-    final remembered = await _authService.getRememberMe();
-    if (remembered) {
-      final credentials = await _authService.getRememberedCredentials();
-      setState(() {
-        _emailController.text = credentials['email'] ?? '';
-        _passwordController.text = credentials['password'] ?? '';
-        _rememberMe = true;
-      });
-    }
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _authService = Provider.of<AuthService>(context, listen: false);
+    localizations = AppLocalizations.of(context)!;
   }
 
   Future<void> _submitAuthForm() async {
@@ -58,7 +44,6 @@ class _AuthScreenState extends State<AuthScreen> {
 
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
     });
 
     try {
@@ -67,20 +52,10 @@ class _AuthScreenState extends State<AuthScreen> {
           _emailController.text.trim(),
           _passwordController.text.trim(),
         );
-        await _authService.setRememberMe(
-          _rememberMe,
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
-        );
       } else {
         await _authService.registerWithEmail(
           _emailController.text.trim(),
           _passwordController.text.trim(),
-        );
-        await _authService.setRememberMe(
-          _rememberMe,
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
         );
       }
       
@@ -92,22 +67,22 @@ class _AuthScreenState extends State<AuthScreen> {
     } catch (e) {
       if (mounted) {
         String errorMessage;
-        if (e.toString().contains('email-already-in-use')) {
+        final errorStr = e.toString();
+        if (errorStr.contains('email-already-in-use')) {
           errorMessage = localizations.errorEmailAlreadyInUse;
-        } else if (e.toString().contains('invalid-credential')) {
+        } else if (errorStr.contains('invalid-credential')) {
           errorMessage = localizations.errorInvalidCredentials;
-        } else if (e.toString().contains('weak-password')) {
+        } else if (errorStr.contains('weak-password')) {
           errorMessage = localizations.errorWeakPassword;
-        } else if (e.toString().contains('user-not-found')) {
+        } else if (errorStr.contains('user-not-found') || errorStr.contains('errorUserNotFound')) {
           errorMessage = localizations.errorUserNotFound;
-        } else if (e.toString().contains('too-many-requests')) {
+        } else if (errorStr.contains('too-many-requests')) {
           errorMessage = localizations.errorTooManyRequests;
-        } else if (e.toString().contains('network-request-failed')) {
+        } else if (errorStr.contains('network-request-failed')) {
           errorMessage = localizations.errorNetworkRequestFailed;
         } else {
-          errorMessage = e.toString().replaceAll('Exception: ', '');
+          errorMessage = errorStr.replaceAll('Exception: ', '');
         }
-        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(errorMessage),
@@ -235,23 +210,16 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
                     obscureText: _obscureConfirmPassword,
                     validator: (value) {
-                      if (value == null || value.isEmpty) 
+                      if (value == null || value.isEmpty) {
                         return localizations.errorConfirmPassword;
-                      if (value != _passwordController.text) 
+                      }
+                      if (value != _passwordController.text) {
                         return localizations.errorPasswordsDoNotMatch;
+                      }
                       return null;
                     },
                   ),
                 ],
-                const SizedBox(height: 20),
-                if (_isLogin)
-                  CheckboxListTile(
-                    title: Text(localizations.rememberMe),
-                    value: _rememberMe,
-                    onChanged: (value) => setState(() => _rememberMe = value!),
-                    controlAffinity: ListTileControlAffinity.leading,
-                    contentPadding: EdgeInsets.zero,
-                  ),
                 const SizedBox(height: 20),
                 if (_isLoading)
                   const CircularProgressIndicator()
@@ -285,8 +253,6 @@ class _SettingsModal extends StatelessWidget {
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context);
     final settings = Provider.of<SettingsService>(context);
-    double musicVolume = settings.musicVolume;
-    double sfxVolume = settings.sfxVolume;
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(

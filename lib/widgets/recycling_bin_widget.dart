@@ -28,9 +28,9 @@ class RecyclingBinWidget extends StatelessWidget {
           ],
         );
       },
-      onWillAccept: (data) => true,
-      onAccept: (data) {
-        onAccept(data);
+      onWillAcceptWithDetails: (details) => true,
+      onAcceptWithDetails: (details) {
+        onAccept(details.data);
       },
     );
   }
