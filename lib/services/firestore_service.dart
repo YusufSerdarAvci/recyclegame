@@ -120,10 +120,21 @@ class FirestoreService {
 
   Future<void> updateUserSettings(String uid, Map<String, dynamic> settings) async {
     try {
-      await _db.collection('users').doc(uid).update({
-        ...settings,
-        'lastUpdated': FieldValue.serverTimestamp(),
-      });
+      final userDoc = _db.collection('users').doc(uid);
+      final doc = await userDoc.get();
+      
+      if (!doc.exists) {
+        await userDoc.set({
+          ...settings,
+          'createdAt': FieldValue.serverTimestamp(),
+          'lastUpdated': FieldValue.serverTimestamp(),
+        });
+      } else {
+        await userDoc.update({
+          ...settings,
+          'lastUpdated': FieldValue.serverTimestamp(),
+        });
+      }
     } catch (e) {
       print("Kullanıcı ayarları güncellenirken hata: $e");
       throw Exception('Ayarlar kaydedilemedi. Lütfen tekrar deneyin.');

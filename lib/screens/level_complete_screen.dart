@@ -80,7 +80,7 @@ class _LevelCompleteScreenState extends State<LevelCompleteScreen> {
   }
 
   void _onButtonPressed(Function action) {
-    AudioService.playSfx('click.wav');
+    AudioService.playSfx('button_click.wav');
     action();
   }
 

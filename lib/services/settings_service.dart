@@ -110,7 +110,14 @@ class SettingsService with ChangeNotifier {
         rethrow;
       }
     } else {
-      await _prefs.setString('languageCode', locale.languageCode);
+      try {
+        await _prefs.setString('languageCode', locale.languageCode);
+      } catch (e) {
+        print("Dil ayarı güncellenirken hata: $e");
+        _locale = const Locale('en');
+        notifyListeners();
+        rethrow;
+      }
     }
     
     notifyListeners();
