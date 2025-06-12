@@ -10,8 +10,11 @@ class FirestoreService {
       return userDoc.set({
         'displayName': displayName,
         'createdAt': FieldValue.serverTimestamp(),
-        'totalScore': 0, 
-        'levelStars': {}, 
+        'totalScore': 0,
+        'levelStars': {},
+        'musicVolume': 1.0,
+        'sfxVolume': 1.0,
+        'languageCode': 'en',
       });
     }
   }
@@ -65,15 +68,25 @@ class FirestoreService {
     try {
       final doc = await _db.collection('users').doc(uid).get();
       if (doc.exists && doc.data() != null) {
+        final data = doc.data()!;
         return {
-          'levelStars': doc.data()!['levelStars'] ?? {},
-          'totalScore': doc.data()!['totalScore'] ?? 0,
+          'levelStars': data['levelStars'] ?? {},
+          'totalScore': data['totalScore'] ?? 0,
+          'musicVolume': data['musicVolume'] ?? 1.0,
+          'sfxVolume': data['sfxVolume'] ?? 1.0,
+          'languageCode': data['languageCode'] ?? 'en',
         };
       }
     } catch (e) {
       print("Kullanıcı verisi alınırken hata: $e");
     }
-    return {'levelStars': {}, 'totalScore': 0};
+    return {
+      'levelStars': {},
+      'totalScore': 0,
+      'musicVolume': 1.0,
+      'sfxVolume': 1.0,
+      'languageCode': 'en',
+    };
   }
 
   Future<void> updateUserLevelStars(String uid, Map<int, int> stars) async {
@@ -106,7 +119,15 @@ class FirestoreService {
   }
 
   Future<void> updateUserSettings(String uid, Map<String, dynamic> settings) async {
-    await _db.collection('users').doc(uid).update(settings);
+    try {
+      await _db.collection('users').doc(uid).update({
+        ...settings,
+        'lastUpdated': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      print("Kullanıcı ayarları güncellenirken hata: $e");
+      throw Exception('Ayarlar kaydedilemedi. Lütfen tekrar deneyin.');
+    }
   }
 
   Stream<QuerySnapshot> getLeaderboard() {

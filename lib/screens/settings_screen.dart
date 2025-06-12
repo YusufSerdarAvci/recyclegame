@@ -14,19 +14,30 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   double _musicVolume = 1.0;
   double _sfxVolume = 1.0;
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    final settings = Provider.of<SettingsService>(context, listen: false);
-    _musicVolume = settings.musicVolume;
-    _sfxVolume = settings.sfxVolume;
+    _loadSettings();
   }
 
-  void _updateSettings() {
+  Future<void> _loadSettings() async {
     final settings = Provider.of<SettingsService>(context, listen: false);
-    settings.setMusicVolume(_musicVolume);
-    settings.setSfxVolume(_sfxVolume);
+    await settings.loadSettings();
+    if (mounted) {
+      setState(() {
+        _musicVolume = settings.musicVolume;
+        _sfxVolume = settings.sfxVolume;
+        _loading = false;
+      });
+    }
+  }
+
+  Future<void> _updateSettings() async {
+    final settings = Provider.of<SettingsService>(context, listen: false);
+    await settings.setMusicVolume(_musicVolume);
+    await settings.setSfxVolume(_sfxVolume);
     AudioService.updateSettings(_musicVolume, _sfxVolume);
   }
 
@@ -34,6 +45,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context);
     final settings = Provider.of<SettingsService>(context);
+
+    if (_loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(

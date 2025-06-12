@@ -4,12 +4,42 @@ import 'package:recycle_game/services/settings_service.dart';
 import 'package:recycle_game/data/game_levels.dart';
 import 'package:recycle_game/screens/game_screen.dart';
 
-class LevelSelectionScreen extends StatelessWidget {
+class LevelSelectionScreen extends StatefulWidget {
   const LevelSelectionScreen({super.key});
+
+  @override
+  State<LevelSelectionScreen> createState() => _LevelSelectionScreenState();
+}
+
+class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserLevelData();
+  }
+
+  Future<void> _loadUserLevelData() async {
+    final settings = Provider.of<SettingsService>(context, listen: false);
+    await settings.loadSettings();
+    if (mounted) {
+      setState(() {
+        _loading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final settings = Provider.of<SettingsService>(context);
+
+    if (_loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Select Level'),

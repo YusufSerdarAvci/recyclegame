@@ -97,10 +97,18 @@ class SettingsService with ChangeNotifier {
     final user = await _auth.user.first;
     
     if (user != null && !_auth.isGuest) {
-      await _firestoreService.updateUserSettings(
-        user.uid,
-        {'languageCode': locale.languageCode},
-      );
+      try {
+        await _firestoreService.updateUserSettings(
+          user.uid,
+          {'languageCode': locale.languageCode},
+        );
+      } catch (e) {
+        print("Dil ayarı güncellenirken hata: $e");
+        // Hata durumunda varsayılan dile geri dön
+        _locale = const Locale('en');
+        notifyListeners();
+        rethrow;
+      }
     } else {
       await _prefs.setString('languageCode', locale.languageCode);
     }

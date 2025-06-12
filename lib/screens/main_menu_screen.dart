@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:recycle_game/screens/level_selection_screen.dart';
-import 'package:recycle_game/screens/leaderboard_screen.dart';
 import 'package:recycle_game/screens/profile_screen.dart';
 import 'package:recycle_game/screens/settings_screen.dart';
 import 'package:recycle_game/services/audio_service.dart';
@@ -103,18 +102,6 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
                         );
                       },
                     ),
-                    if (!authService.isGuest)
-                      _buildMenuButton(
-                        context,
-                        icon: Icons.leaderboard,
-                        label: localizations.leaderboard,
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const LeaderboardScreen()),
-                          );
-                        },
-                      ),
                     if (!authService.isGuest) 
                       _buildMenuButton(
                         context,

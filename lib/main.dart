@@ -11,10 +11,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ]);
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
   await Firebase.initializeApp();
-  // Artık kullanıcıyı burada değil, AuthWrapper içinde yöneteceğiz.
 
   runApp(
     MultiProvider(
@@ -28,17 +31,52 @@ Future<void> main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final settings = Provider.of<SettingsService>(context, listen: false);
+    await settings.loadSettings();
+    if (mounted) {
+      setState(() {
+        _loading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final settings = Provider.of<SettingsService>(context);
 
+    if (_loading) {
+      return MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(
+              color: Colors.green[700],
+            ),
+          ),
+        ),
+      );
+    }
+
     return MaterialApp(
       title: 'Recycle Game',
       theme: ThemeData(
-         primarySwatch: Colors.green,
+        primarySwatch: Colors.green,
         visualDensity: VisualDensity.adaptivePlatformDensity,
         scaffoldBackgroundColor: Colors.green[100],
         appBarTheme: AppBarTheme(
@@ -57,7 +95,7 @@ class MyApp extends StatelessWidget {
       locale: settings.locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      home: AuthWrapper(),
+      home: const AuthWrapper(),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -96,6 +134,6 @@ class _AuthWrapperState extends State<AuthWrapper> {
         body: Center(child: CircularProgressIndicator()),
       );
     }
-    return MainMenuScreen();
+    return const MainMenuScreen();
   }
 }

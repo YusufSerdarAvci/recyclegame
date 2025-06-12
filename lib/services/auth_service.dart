@@ -6,6 +6,9 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   bool isGuest = false;
   static const String _guestUserIdKey = 'guest_user_id';
+  static const String _rememberMeKey = 'rememberMe';
+  static const String _rememberedEmailKey = 'rememberedEmail';
+  static const String _rememberedPasswordKey = 'rememberedPassword';
 
   Stream<User?> get user => _auth.authStateChanges();
 
@@ -144,14 +147,30 @@ class AuthService {
     return false;
   }
 
-  Future<void> setRememberMe(bool value) async {
+  Future<void> setRememberMe(bool value, {String? email, String? password}) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('rememberMe', value);
+    await prefs.setBool(_rememberMeKey, value);
+    
+    if (value && email != null && password != null) {
+      await prefs.setString(_rememberedEmailKey, email);
+      await prefs.setString(_rememberedPasswordKey, password);
+    } else if (!value) {
+      await prefs.remove(_rememberedEmailKey);
+      await prefs.remove(_rememberedPasswordKey);
+    }
   }
 
   Future<bool> getRememberMe() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('rememberMe') ?? false;
+    return prefs.getBool(_rememberMeKey) ?? false;
+  }
+
+  Future<Map<String, String?>> getRememberedCredentials() async {
+    final prefs = await SharedPreferences.getInstance();
+    return {
+      'email': prefs.getString(_rememberedEmailKey),
+      'password': prefs.getString(_rememberedPasswordKey),
+    };
   }
 
   Future<void> signOut() async {

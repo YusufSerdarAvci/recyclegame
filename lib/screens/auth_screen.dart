@@ -23,6 +23,7 @@ class _AuthScreenState extends State<AuthScreen> {
   bool _rememberMe = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  String? _errorMessage;
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -34,20 +35,55 @@ class _AuthScreenState extends State<AuthScreen> {
     localizations = AppLocalizations.of(context)!;
   }
 
-  void _submitAuthForm() async {
+  @override
+  void initState() {
+    super.initState();
+    _loadRememberedCredentials();
+  }
+
+  Future<void> _loadRememberedCredentials() async {
+    final remembered = await _authService.getRememberMe();
+    if (remembered) {
+      final credentials = await _authService.getRememberedCredentials();
+      setState(() {
+        _emailController.text = credentials['email'] ?? '';
+        _passwordController.text = credentials['password'] ?? '';
+        _rememberMe = true;
+      });
+    }
+  }
+
+  Future<void> _submitAuthForm() async {
     if (!_formKey.currentState!.validate()) return;
-    
-    setState(() => _isLoading = true);
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
 
     try {
       if (_isLogin) {
-        await _authService.signInWithEmail(_emailController.text, _passwordController.text);
+        await _authService.signInWithEmail(
+          _emailController.text.trim(),
+          _passwordController.text.trim(),
+        );
+        await _authService.setRememberMe(
+          _rememberMe,
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
       } else {
-        await _authService.registerWithEmail(_emailController.text, _passwordController.text);
+        await _authService.registerWithEmail(
+          _emailController.text.trim(),
+          _passwordController.text.trim(),
+        );
+        await _authService.setRememberMe(
+          _rememberMe,
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
       }
       
-      await _authService.setRememberMe(_rememberMe);
-
       if (mounted && _authService.user.isBroadcast) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const MainMenuScreen()),
@@ -81,7 +117,9 @@ class _AuthScreenState extends State<AuthScreen> {
       }
     } finally {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }
@@ -113,7 +151,7 @@ class _AuthScreenState extends State<AuthScreen> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings),
+            icon: const Icon(Icons.settings, color: Colors.black),
             onPressed: () {
               showModalBottomSheet(
                 context: context,
