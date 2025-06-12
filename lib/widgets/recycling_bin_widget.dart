@@ -1,4 +1,3 @@
-// lib/widgets/recycling_bin_widget.dart
 import 'package:flutter/material.dart';
 import 'package:recycle_game/l10n/app_localizations.dart';
 import 'package:recycle_game/models/recyclable_item.dart';
@@ -17,20 +16,25 @@ class RecyclingBinWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context);
 
-    return DragTarget<RecyclableItem>(
-      builder: (context, candidateData, rejectedData) {
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset('assets/images/bins/${binType}_bin.png', height: 80),
-            const SizedBox(height: 4),
-            Text(_localizedBinName(localizations, binType)),
-          ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double binHeight = constraints.maxHeight * 0.7; 
+        return DragTarget<RecyclableItem>(
+          builder: (context, candidateData, rejectedData) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset('assets/images/bins/${binType}_bin.png', height: binHeight),
+                const SizedBox(height: 4),
+                Text(_localizedBinName(localizations, binType)),
+              ],
+            );
+          },
+          onWillAcceptWithDetails: (details) => true,
+          onAcceptWithDetails: (details) {
+            onAccept(details.data);
+          },
         );
-      },
-      onWillAcceptWithDetails: (details) => true,
-      onAcceptWithDetails: (details) {
-        onAccept(details.data);
       },
     );
   }

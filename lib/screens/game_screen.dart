@@ -131,7 +131,6 @@ class _GameScreenState extends State<GameScreen> {
       ),
       body: Column(
         children: [
-          // Score and Info Header
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -153,17 +152,26 @@ class _GameScreenState extends State<GameScreen> {
               padding: const EdgeInsets.all(16.0),
               child: Center(
                 child: _itemsToRecycle.isNotEmpty
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          DraggableItemWidget(item: _itemsToRecycle.first),
-                          const SizedBox(height: 24),
-                          Text(
-                            '${localizations?.progress ?? 'Progress'}: '
-                            '${_currentLevel.items.length - _itemsToRecycle.length + 1}/${_currentLevel.items.length}',
-                            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-                ),
-                        ],
+                    ? LayoutBuilder(
+                        builder: (context, constraints) {
+                          double itemSize = constraints.maxWidth * 0.3; // Ekranın %30'u kadar
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: itemSize,
+                                height: itemSize,
+                                child: DraggableItemWidget(item: _itemsToRecycle.first),
+                              ),
+                              const SizedBox(height: 24),
+                              Text(
+                                '${localizations?.progress ?? 'Progress'}: '
+                                '${_currentLevel.items.length - _itemsToRecycle.length + 1}/${_currentLevel.items.length}',
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                              ),
+                            ],
+                          );
+                        },
                       )
                     : const SizedBox.shrink(),
               ),
