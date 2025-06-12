@@ -1,5 +1,10 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
 import 'app_localizations.dart';
 
+// ignore_for_file: type=lint
+
+/// The translations for Turkish (`tr`).
 class AppLocalizationsTr extends AppLocalizations {
   AppLocalizationsTr([String locale = 'tr']) : super(locale);
 
@@ -153,6 +158,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String get language => 'Dil';
 
   @override
+  String get guestProgressWarning =>
+      'Misafir ilerlemesi kaydedilmez. Puanlarınızı kaydetmek için lütfen giriş yapın.';
+
+  @override
   String get login => 'Giriş Yap';
 
   @override
@@ -180,8 +189,110 @@ class AppLocalizationsTr extends AppLocalizations {
   String get logout => 'Çıkış Yap';
 
   @override
-  String get guestProgressWarning => 'Misafir ilerlemesi kaydedilmez. Puanlarınızı kaydetmek için lütfen giriş yapın.';
+  String get registerOrLogin => 'Kayıt Ol veya Giriş Yap';
 
   @override
-  String get registerOrLogin => 'Kayıt Ol / Giriş Yap';
+  String get confirmPassword => 'Şifreyi Onayla';
+
+  @override
+  String get errorInvalidEmail => 'Lütfen geçerli bir e-posta adresi girin.';
+
+  @override
+  String get errorPasswordTooShort => 'Şifre en az 6 karakter olmalıdır.';
+
+  @override
+  String get errorConfirmPassword => 'Lütfen şifrenizi onaylayın.';
+
+  @override
+  String get errorPasswordsDoNotMatch => 'Şifreler eşleşmiyor.';
+
+  @override
+  String get errorEmailAlreadyInUse => 'Bu e-posta adresi zaten kullanımda.';
+
+  @override
+  String get errorInvalidCredentials => 'Geçersiz e-posta veya şifre.';
+
+  @override
+  String get errorWeakPassword => 'Şifre çok zayıf.';
+
+  @override
+  String get errorUserNotFound =>
+      'Bu e-posta adresiyle kayıtlı kullanıcı bulunamadı.';
+
+  @override
+  String get errorTooManyRequests =>
+      'Çok fazla deneme. Lütfen daha sonra tekrar deneyin.';
+
+  @override
+  String get errorNetworkRequestFailed =>
+      'Ağ hatası. Lütfen bağlantınızı kontrol edin';
+
+  @override
+  String get educationalFact1 =>
+      'Bir alüminyum kutuyu geri dönüştürmek, bir TV\'yi üç saat çalıştırmaya yetecek enerji tasarrufu sağlar.';
+
+  @override
+  String get educationalFact2 =>
+      'Cam, saflığını veya kalitesini kaybetmeden sonsuz kez geri dönüştürülebilir.';
+
+  @override
+  String get educationalFact3 =>
+      'Tek bir plastik şişeyi geri dönüştürmek, 60 watt\'lık bir ampulü altı saat boyunca çalıştırmaya yetecek enerji tasarrufu sağlar.';
+
+  @override
+  String get educationalFact4 =>
+      'Kağıdı geri dönüştürmek, ham maddelerden üretmeye göre %60 daha az enerji kullanır.';
+
+  @override
+  String get educationalFact5 =>
+      'Çöp sahalarındaki organik atıklar, güçlü bir sera gazı olan metan üretir. Kompostlama bu emisyonları azaltır.';
+
+  @override
+  String get educationalFact6 =>
+      'Bir cam şişeyi geri dönüştürmekten elde edilen enerji, bir bilgisayarı 25 dakika çalıştırabilir.';
+
+  @override
+  String get educationalFact7 =>
+      'Ortalama bir kişi her gün 2 kilogramdan fazla çöp üretir.';
+
+  @override
+  String get educationalFact8 =>
+      'Çoğu plastik ürün, çöp sahasında en az 450 yılda ayrışır.';
+
+  @override
+  String get educationalFact9 =>
+      'Bir ton kağıdı geri dönüştürmek, 17 olgun ağacı, 7.000 galon suyu ve 3 metreküp çöp sahası alanını kurtarır.';
+
+  @override
+  String get educationalFact10 =>
+      'Çelik ve alüminyum sürekli olarak geri dönüştürülebilir, bu da onları oldukça sürdürülebilir malzemeler yapar.';
+
+  @override
+  String get educationalFact11 =>
+      'Yemek artıkları ve bahçe atıkları, attığımız çöplerin %30\'undan fazlasını oluşturur.';
+
+  @override
+  String get educationalFact12 =>
+      'Tüm plastikler aynı değildir. Doğru şekilde nasıl geri dönüştürüleceğini öğrenmek için geri dönüşüm sembolünü (üçgen içindeki numara) kontrol edin.';
+
+  @override
+  String get educationalFactsTitle => 'Eğitici Bilgiler';
+
+  @override
+  String get close => 'Kapat';
+
+  @override
+  String get anotherFact => 'Başka Bilgi';
+
+  @override
+  String get profileUpdated => 'Profil güncellendi!';
+
+  @override
+  String get displayName => 'Görünen Ad';
+
+  @override
+  String get nameCannotBeEmpty => 'İsim boş olamaz.';
+
+  @override
+  String get save => 'Kaydet';
 }
