@@ -73,7 +73,7 @@ class FirestoreService {
         };
       }
     } catch (e) {
-      print("Kullanıcı verisi alınırken hata: $e");
+      rethrow;
     }
     return {
       'levelStars': {},
@@ -118,7 +118,6 @@ class FirestoreService {
         'lastUpdated': FieldValue.serverTimestamp(),
       });
     } catch (e) {
-      print("Level yıldızları güncellenirken hata: $e");
       throw Exception('Level yıldızları kaydedilemedi. Lütfen tekrar deneyin.');
     }
   }
@@ -141,7 +140,6 @@ class FirestoreService {
         });
       }
     } catch (e) {
-      print("Kullanıcı ayarları güncellenirken hata: $e");
       throw Exception('Ayarlar kaydedilemedi. Lütfen tekrar deneyin.');
     }
   }
