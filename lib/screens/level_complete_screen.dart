@@ -2,7 +2,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:recycle_game/l10n/app_localizations.dart';
 import 'package:recycle_game/data/game_levels.dart';
 import 'package:recycle_game/screens/game_screen.dart';
 import 'package:recycle_game/screens/main_menu_screen.dart';

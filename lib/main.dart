@@ -5,9 +5,10 @@ import 'package:recycle_game/screens/main_menu_screen.dart';
 import 'package:recycle_game/services/auth_service.dart';
 import 'package:recycle_game/services/settings_service.dart';
 import 'package:recycle_game/services/firestore_service.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:recycle_game/l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:io' show Platform;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,7 +18,19 @@ Future<void> main() async {
   ]);
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
-  await Firebase.initializeApp();
+  if (Platform.isIOS) {
+    await Firebase.initializeApp(
+      options: const FirebaseOptions(
+        apiKey: 'AIzaSyCikDzNh0Emx5my7YmKqgnVoR8yQCzqLpI',
+        appId: '1:41602356943:ios:1afa30f25d9748a8a349ba',
+        messagingSenderId: '41602356943',
+        projectId: 'recycle-game-1dad1',
+        storageBucket: 'recycle-game-1dad1.firebasestorage.app',
+      ),
+    );
+  } else {
+    await Firebase.initializeApp();
+  }
 
   runApp(
     MultiProvider(

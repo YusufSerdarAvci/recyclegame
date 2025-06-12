@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:recycle_game/l10n/app_localizations.dart';
 import 'package:recycle_game/data/game_levels.dart';
 import 'package:recycle_game/models/recyclable_item.dart';
 import 'package:recycle_game/screens/level_complete_screen.dart';

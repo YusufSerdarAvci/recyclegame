@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:recycle_game/screens/main_menu_screen.dart';
 import 'package:recycle_game/services/auth_service.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:recycle_game/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:recycle_game/services/settings_service.dart';
 import 'package:recycle_game/services/audio_service.dart';

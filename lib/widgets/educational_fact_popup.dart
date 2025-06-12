@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:recycle_game/l10n/app_localizations.dart';
 import 'dart:math';
 
 class EducationalFactPopup extends StatefulWidget {

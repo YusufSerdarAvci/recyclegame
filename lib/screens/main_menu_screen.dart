@@ -4,7 +4,7 @@ import 'package:recycle_game/screens/level_selection_screen.dart';
 import 'package:recycle_game/screens/profile_screen.dart';
 import 'package:recycle_game/screens/settings_screen.dart';
 import 'package:recycle_game/services/audio_service.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:recycle_game/l10n/app_localizations.dart';
 import 'package:recycle_game/services/auth_service.dart';
 import 'package:provider/provider.dart';
 import 'package:recycle_game/screens/auth_screen.dart';
@@ -52,130 +52,129 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
     final authService = Provider.of<AuthService>(context);
 
     return Scaffold(
+      appBar: !authService.isGuest ? AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.black),
+            onPressed: () async {
+              await authService.signOut();
+              if(mounted) {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) => const AuthScreen())
+                );
+              }
+            },
+          ),
+        ],
+      ) : null,
       body: SafeArea(
         child: Center(
-          child: SingleChildScrollView(
+          child: Padding(
             padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                if (authService.isGuest)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16.0),
-                    child: Text(
-                      localizations.guestProgressWarning,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.red[700], fontWeight: FontWeight.bold),
+            child: SizedBox.expand(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  if (authService.isGuest)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16.0),
+                      child: Text(
+                        localizations.guestProgressWarning,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.red[700], fontWeight: FontWeight.bold),
+                      ),
                     ),
-                  ),
-                Image.asset('assets/images/default/recycle_logo.png', height: 150)
-                    .animate()
-                    .scale(delay: 300.ms, duration: 500.ms),
-                const SizedBox(height: 20),
-                Text(
-                  localizations.appTitle,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    shadows: [
-                      Shadow(blurRadius: 10.0, color: Colors.black.withOpacity(0.5))
-                    ],
-                  ),
-                ).animate().fade(duration: 500.ms).slideY(begin: -1),
-                const SizedBox(height: 50),
-                Wrap(
-                  spacing: 15.0,
-                  runSpacing: 15.0,
-                  alignment: WrapAlignment.center,
-                  children: [
-                    _buildMenuButton(
-                      context,
-                      icon: Icons.play_arrow,
-                      label: localizations.startGame,
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const LevelSelectionScreen()),
-                        );
-                      },
+                  Image.asset('assets/images/default/recycle_logo.png', height: 150)
+                      .animate()
+                      .scale(delay: 300.ms, duration: 500.ms),
+                  Text(
+                    localizations.appTitle,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      shadows: [
+                        Shadow(blurRadius: 10.0, color: Colors.black.withOpacity(0.5))
+                      ],
                     ),
-                    if (!authService.isGuest) 
+                  ).animate().fade(duration: 500.ms).slideY(begin: -1),
+                  Wrap(
+                    spacing: 15.0,
+                    runSpacing: 15.0,
+                    alignment: WrapAlignment.center,
+                    children: [
                       _buildMenuButton(
                         context,
-                        icon: Icons.person,
-                        label: localizations.profile,
+                        icon: Icons.play_arrow,
+                        label: localizations.startGame,
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                            MaterialPageRoute(builder: (context) => const LevelSelectionScreen()),
                           );
                         },
                       ),
-                    _buildMenuButton(
-                      context,
-                      icon: Icons.settings,
-                      label: localizations.settings,
-                      onPressed: () {
-                        Navigator.push(
+                      if (!authService.isGuest) 
+                        _buildMenuButton(
                           context,
-                          MaterialPageRoute(builder: (context) => const SettingsScreen()),
-                        );
-                      },
-                    ),
-                    _buildMenuButton(
-                      context,
-                      icon: Icons.lightbulb_outline,
-                      label: localizations.educationalFactsTitle,
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => const EducationalFactPopup(),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 30),
-                if (authService.isGuest)
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.login),
-                    label: Text(localizations.registerOrLogin),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange.shade700,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                    ),
-                    onPressed: () {
-                      _onButtonPressed(() async {
-                        await authService.signOut();
-                        if (mounted) {
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(builder: (context) => const AuthScreen()),
+                          icon: Icons.person,
+                          label: localizations.profile,
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                            );
+                          },
+                        ),
+                      _buildMenuButton(
+                        context,
+                        icon: Icons.settings,
+                        label: localizations.settings,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const SettingsScreen()),
                           );
-                        }
-                      });
-                    },
+                        },
+                      ),
+                      _buildMenuButton(
+                        context,
+                        icon: Icons.lightbulb_outline,
+                        label: localizations.educationalFactsTitle,
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => const EducationalFactPopup(),
+                          );
+                        },
+                      ),
+                    ],
                   ),
-                const SizedBox(height: 10),
-                if (!authService.isGuest)
-                  TextButton.icon(
-                    icon: const Icon(Icons.logout, color: Colors.white),
-                    label: Text(
-                      localizations.logout,
-                      style: const TextStyle(color: Colors.white),
+                  if (authService.isGuest)
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.login),
+                      label: Text(localizations.registerOrLogin),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange.shade700,
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      ),
+                      onPressed: () {
+                        _onButtonPressed(() async {
+                          await authService.signOut();
+                          if (mounted) {
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(builder: (context) => const AuthScreen()),
+                            );
+                          }
+                        });
+                      },
                     ),
-                    onPressed: () async {
-                      await authService.signOut();
-                      if(mounted) {
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: (context) => const AuthScreen())
-                        );
-                      }
-                    },
-                  )
-              ],
+                ],
+              ),
             ),
           ),
         ),
